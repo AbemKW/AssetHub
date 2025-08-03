@@ -2,10 +2,10 @@ using AssetHubBlazor.Components;
 using AssetHubBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSingleton<AssetService>();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddSingleton<AssetService>();
 
 var app = builder.Build();
 

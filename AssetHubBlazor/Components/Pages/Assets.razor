@@ -1,0 +1,51 @@
+﻿@page "/assets"
+@rendermode InteractiveServer
+@using AssetHubBlazor.Models
+@using AssetHubBlazor.Services
+@inject AssetService AssetService
+
+<h3>Assets</h3>
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAllAssets();
+    }
+}
+
+@if (AllAssets == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Purchase Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var asset in AllAssets)
+            {
+                <tr>
+                    <td>@asset.Name</td>
+                    <td>@asset.Type</td>
+                    <td>@asset.Status</td>
+                    <td>@asset.PurchaseDate.ToString("MMM dd, yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<Asset> AllAssets = new List<Asset>();
+
+    public async Task LoadAllAssets()
+    {
+        AllAssets = AssetService.AssetList;
+    }
+}

@@ -1,0 +1,69 @@
+﻿@page "/find"
+@rendermode InteractiveServer
+@using AssetHubBlazor.Models
+@using AssetHubBlazor.Services
+@inject AssetService AssetService
+
+<h3>Find Asset by ID</h3>
+
+<div class="mb-3">
+    <input @bind="Id"
+           @bind:event="oninput"
+           type="number"
+           class="form-control"
+           style="max-width: 200px;"
+           placeholder="Enter Asset ID" />
+</div>
+<button class="btn btn-primary" onclick="@Find">Search</button>
+
+@if (ButtonClicked)
+{
+    <div class="alert alert-info mt-3">Search button clicked. Searching for asset with ID: @Id</div>
+}
+
+@if (FoundAsset == null && HasSearched)
+{
+    <div class="alert alert-warning mt-3">No asset found with ID: @Id</div>
+}
+else if (FoundAsset != null)
+{
+    <table class="table table-bordered mt-3">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Purchase Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@FoundAsset.Name</td>
+                <td>@FoundAsset.Type</td>
+                <td>@FoundAsset.Status</td>
+                <td>@FoundAsset.PurchaseDate.ToString("MMM dd, yyyy")</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        <a href="/view/@FoundAsset.Id" class="btn btn-info">View Details</a>
+        <a href="/edit/@FoundAsset.Id" class="btn btn-warning ms-2">Edit</a>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Asset? FoundAsset { get; set; }
+    private bool HasSearched { get; set; } = false;
+    private bool ButtonClicked { get; set; } = false;
+
+    private async Task Find()
+    {
+        ButtonClicked = true;
+        HasSearched = true;
+        FoundAsset = await AssetService.GetByIdAsync(Id);
+    }
+}

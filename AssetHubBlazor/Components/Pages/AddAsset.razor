@@ -1,4 +1,5 @@
 ﻿@page "/add"
+@rendermode InteractiveServer
 @using AssetHubBlazor.Models
 @using AssetHubBlazor.Services
 @inject AssetService AssetService
@@ -13,19 +14,19 @@
     <div class="row">
         <div class="col-md-6 mb-3">
             <label for="assetName" class="form-label">Name *</label>
-            <InputText id="assetName" class="form-control" @bind-Value ="NewAsset.Name"/>
+            <InputText id="assetName" class="form-control" @bind-Value ="NewAsset.Name" />
             <ValidationMessage For="@(() => NewAsset.Name)" Class="text-danger small" />
         </div>
 
         <div class="col-md-6 mb-3">
             <label for="assetType" class="form-label">Type *</label>
-            <select id="assetType" class="form-control" @bind="NewAsset.Type">
+            <InputSelect id="assetType" class="form-control" @bind-Value="NewAsset.Type">
                 <option value="">-- Select Type --</option>
                 @foreach (var type in Enum.GetValues<AssetType>())
                 {
-                    <option value="@((int)type)">@type</option>
+                    <option value="@type">@type</option>
                 }
-            </select>
+            </InputSelect>
             <ValidationMessage For="@(() => NewAsset.Type)" Class="text-danger small" />
         </div>
     </div>
@@ -50,13 +51,13 @@
 
         <div class="col-md-6 mb-3">
             <label for="status" class="form-label">Status *</label>
-            <select id="status" class="form-control" @bind="NewAsset.Status">
+            <InputSelect id="status" class="form-control" @bind-Value="NewAsset.Status">
                 <option value="">-- Select Status --</option>
                 @foreach (var status in Enum.GetValues<Status>())
                 {
-                    <option value="@((int)status)">@status</option>
+                    <option value="@status">@status</option>
                 }
-            </select>
+            </InputSelect>
             <ValidationMessage For="@(() => NewAsset.Status)" Class="text-danger small" />
         </div>
     </div>
@@ -119,7 +120,9 @@
 
     private async Task HandleValidSubmit()
     {
+        Console.WriteLine($"Name: {NewAsset.Name}, Type: {NewAsset.Type}, Status: {NewAsset.Status}");
         await AssetService.AddAsync(NewAsset);
+        NewAsset = new();
         NavigationManager.NavigateTo("/");
     }
 
