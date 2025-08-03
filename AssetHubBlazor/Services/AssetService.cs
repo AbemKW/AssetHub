@@ -54,10 +54,30 @@ public class AssetService
         return Task.CompletedTask;
     }
 
-    public async Task<Asset?> GetByIdAsync(int id)
+    public Task<Asset?> GetByIdAsync(int id)
     {
         Debug.WriteLine("Searched by ID");
         var asset = AssetList.FirstOrDefault(a => a.Id == id);
-        return asset;
+        return Task.FromResult(asset);
+    }
+    public Task UpdateAsync(Asset asset)
+    {
+        var existing = AssetList.FirstOrDefault(a => a.Id == asset.Id);
+        if(existing != null)
+        {
+            AssetList.Remove(existing);
+            AssetList.Add(asset);
+        }
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveAsync(Asset asset)
+    {
+        bool found = AssetList.Any(a => a.Id == asset.Id);
+        if (found)
+        {
+            AssetList.Remove(asset);
+        }
+        return Task.CompletedTask;
     }
 }
