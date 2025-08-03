@@ -6,7 +6,16 @@ public enum AssetType
 {
     Phone,
     Laptop,
-    Monitor
+    Monitor,
+    Desktop,
+    Tablet,
+    Peripheral,
+    Wearable,
+    SmartDevice,
+    Headphones,
+    Headset,
+    Keyboard,
+    Mouse
 }
 public enum Status
 {
