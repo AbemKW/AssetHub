@@ -1,0 +1,78 @@
+﻿@page "/edit/{Id:int}"
+@rendermode InteractiveServer
+@using AssetHubBlazor.Models
+@using AssetHubBlazor.Services
+@inject AssetService AssetService
+@inject NavigationManager NavigationManager
+
+<h3>Edit Asset</h3>
+
+@if (Asset == null)
+{
+    <div class="alert alert-info">Loading...</div>
+}
+else
+{
+    <EditForm Model="@EditedAsset" OnValidSubmit="@HandleValidSubmit" FormName="EditAssetForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary Class="text-danger mb-3" />
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="assetName" class="form-label">Name *</label>
+                <InputText id="assetName" class="form-control" @bind-Value="EditedAsset.Name" />
+                <ValidationMessage For="@(() => EditedAsset.Name)" Class="text-danger small" />
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="assetType" class="form-label">Type *</label>
+                <InputSelect id="assetType" class="form-control" @bind-Value="EditedAsset.Type">
+                    <option value="">-- Select Type --</option>
+                    @foreach (var type in Enum.GetValues<AssetType>())
+                    {
+                        <option value="@((int)type)">@type</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => EditedAsset.Type)" Class="text-danger small" />
+            </div>
+        </div>
+
+        <!-- Include other fields like in AddAsset.razor -->
+
+        <div class="mb-3">
+            <label for="notes" class="form-label">Notes</label>
+            <InputTextArea id="notes" class="form-control" @bind-Value="EditedAsset.Notes" rows="3" />
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-secondary ms-2" @onclick="Cancel">Cancel</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Asset? Asset { get; set; }
+    private Asset? EditedAsset = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Asset = await AssetService.GetByIdAsync(Id);
+        EditedAsset = Asset;
+
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await AssetService.UpdateAsync(EditedAsset!);
+        NavigationManager.NavigateTo("/find");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/find");
+    }
+}
