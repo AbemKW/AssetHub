@@ -1,37 +1,42 @@
-﻿using AssetHubBlazor.Models;
+﻿using AssetHubBlazor.Components.Pages;
+using AssetHubBlazor.Models;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AssetHubBlazor.Services;
 
 public class AssetService
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+
     public List<Asset> AssetList { get; private set; } = new();
     private int _nextId = 1;
-    public AssetService()
+    public AssetService(IHttpClientFactory httpClientFactory)
     {
-        // Seed with sample data
-        AddAsync(new Asset
-        {
-            Id = 1,
-            Name = "Mike",
-            Type = AssetType.Laptop,
-            Status = Status.InUse,
-            AssignedTo = "Alice Johnson",
-            PurchaseDate = new DateTime(2023, 5, 10),
-            PurchasePrice = 1500,
-            SerialNumber = "MBP-12345"
-        }).Wait();
+        _httpClientFactory = httpClientFactory;
+    }
 
-        AddAsync(new Asset
+    public async Task<List<Asset>> GetAllAsync()
+    {
+        if (!AssetList.Any())
         {
-            Id = 2,
-            Name = "Don",
-            Type = AssetType.Monitor,
-            Status = Status.Available,
-            PurchaseDate = new DateTime(2022, 11, 3),
-            PurchasePrice = 300,
-            SerialNumber = "MON-67890"
-        }).Wait();
+            await LoadFromJson();
+        }
+        return AssetList;
+    }
+    public async Task LoadFromJson()
+    {
+        var client = _httpClientFactory.CreateClient("AssetServiceClient");
+        var jsonContent = await client.GetStringAsync("Data/sample-data.json");
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters = { new JsonStringEnumConverter() } // Use built-in enum converter
+        };
+        var assets = JsonSerializer.Deserialize<List<Asset>>(jsonContent, options);
+
+        AssetList = assets ?? new();
     }
     public Task AddAsync(Asset asset)
     {

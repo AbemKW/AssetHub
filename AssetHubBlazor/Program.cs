@@ -5,6 +5,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddHttpClient("AssetServiceClient", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7288"); // Use your actual app URL and port
+});
 builder.Services.AddSingleton<AssetService>();
 
 var app = builder.Build();
@@ -25,5 +29,7 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.UseStaticFiles();
 
 app.Run();

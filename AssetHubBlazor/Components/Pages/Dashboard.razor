@@ -1,0 +1,156 @@
+﻿@page "/"
+@using AssetHubBlazor.Models
+@using AssetHubBlazor.Services
+@inject AssetService AssetService
+
+<h3>Dashboard</h3>
+
+<div class="row mb-4">
+    <!-- Total Assets -->
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body">
+                <h5>@TotalAssets</h5>
+                <p class="card-text">Total Assets</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- In Use -->
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body">
+                <h5>@InUseCount</h5>
+                <p class="card-text">In Use</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available -->
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-secondary h-100">
+            <div class="card-body">
+                <h5>@AvailableCount</h5>
+                <p class="card-text">Available</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- In Repair -->
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-warning h-100">
+            <div class="card-body">
+                <h5>@InRepairCount</h5>
+                <p class="card-text">In Repair</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Assets Table -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Assets</h5>
+                <a href="/add" class="btn btn-sm btn-primary">Add New</a>
+            </div>
+            <div class="card-body p-0">
+                @if (RecentAssets.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Purchase Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var asset in RecentAssets)
+                            {
+                                <tr>
+                                    <td>@asset.Name</td>
+                                    <td>@asset.Type</td>
+                                    <td>
+                                        <span class="badge
+                                                    @(asset.Status == Status.InUse ? "bg-success" :
+                                                                                            asset.Status == Status.Available ? "bg-secondary" : "bg-warning")">
+                                    @asset.Status
+                                </span>
+                            </td>
+                            <td>@asset.PurchaseDate.ToString("MMM dd")</td>
+                            <td>
+                                <a href="/view/@asset.Id" class="btn btn-sm btn-info">View</a>
+                                <a href="/edit/@asset.Id" class="btn btn-sm btn-warning ms-1">Edit</a>
+                            </td>
+                        </tr>
+                                                }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="text-center p-4 text-muted">
+                        No assets found. <a href="/add">Add your first asset</a>.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Laptops:</span>
+                        <strong>@LaptopCount</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Phones:</span>
+                        <strong>@PhoneCount</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Monitors:</span>
+                        <strong>@MonitorCount</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Avg. Value:</span>
+                        <strong>@AverageValue.ToString("C")</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Asset> AllAssets = new();
+    private List<Asset> RecentAssets => AllAssets
+        .OrderByDescending(a => a.PurchaseDate)
+        .Take(20)
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllAssets = await AssetService.GetAllAsync();
+    }
+
+    private int TotalAssets => AllAssets.Count;
+    private int InUseCount => AllAssets.Count(a => a.Status == Status.InUse);
+    private int AvailableCount => AllAssets.Count(a => a.Status == Status.Available);
+    private int InRepairCount => AllAssets.Count(a => a.Status == Status.InRepair);
+
+    private int LaptopCount => AllAssets.Count(a => a.Type == AssetType.Laptop);
+    private int PhoneCount => AllAssets.Count(a => a.Type == AssetType.Phone);
+    private int MonitorCount => AllAssets.Count(a => a.Type == AssetType.Monitor);
+
+    private decimal AverageValue => AllAssets.Any() ? AllAssets.Average(a => a.PurchasePrice) : 0;
+}
