@@ -1,14 +1,27 @@
-﻿namespace AssetHubBlazor.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
+namespace AssetHubBlazor.Models;
+
+public enum AssetType
+{
+    Phone,
+    Laptop,
+    Monitor
+}
+public enum Status
+{
+    Available,
+    InUse
+}
 public class Asset
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty;
+    public AssetType Type { get; set; }
     public string Brand { get; set; } = string.Empty;
     public string ModelNumber { get; set; } = string.Empty;
     public string SerialNumber { get; set; } = string.Empty;
-    public string Status { get; set; } = "Available";
+    public Status Status { get; set; }
     public string? AssignedTo { get; set; }
     public string? Department { get; set; }
     public string Location { get; set; } = "Office";

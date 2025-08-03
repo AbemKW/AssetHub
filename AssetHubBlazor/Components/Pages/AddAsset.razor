@@ -1,0 +1,130 @@
+﻿@page "/add"
+@using AssetHubBlazor.Models
+@using AssetHubBlazor.Services
+@inject AssetService AssetService
+@inject NavigationManager NavigationManager
+
+<h3>Add New Asset</h3>
+
+<EditForm Model="@NewAsset" OnValidSubmit="@HandleValidSubmit" FormName="AddAssetForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary Class="text-danger mb-3" />
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="assetName" class="form-label">Name *</label>
+            <InputText id="assetName" class="form-control" @bind-Value ="NewAsset.Name"/>
+            <ValidationMessage For="@(() => NewAsset.Name)" Class="text-danger small" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="assetType" class="form-label">Type *</label>
+            <select id="assetType" class="form-control" @bind="NewAsset.Type">
+                <option value="">-- Select Type --</option>
+                @foreach (var type in Enum.GetValues<AssetType>())
+                {
+                    <option value="@((int)type)">@type</option>
+                }
+            </select>
+            <ValidationMessage For="@(() => NewAsset.Type)" Class="text-danger small" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="brand" class="form-label">Brand</label>
+            <InputText id="brand" class="form-control" @bind-Value="NewAsset.Brand" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="modelNumber" class="form-label">Model Number</label>
+            <InputText id="modelNumber" class="form-control" @bind-Value="NewAsset.ModelNumber" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="serialNumber" class="form-label">Serial Number</label>
+            <InputText id="serialNumber" class="form-control" @bind-Value="NewAsset.SerialNumber" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="status" class="form-label">Status *</label>
+            <select id="status" class="form-control" @bind="NewAsset.Status">
+                <option value="">-- Select Status --</option>
+                @foreach (var status in Enum.GetValues<Status>())
+                {
+                    <option value="@((int)status)">@status</option>
+                }
+            </select>
+            <ValidationMessage For="@(() => NewAsset.Status)" Class="text-danger small" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="assignedTo" class="form-label">Assigned To</label>
+            <InputText id="assignedTo" class="form-control" @bind-Value="NewAsset.AssignedTo" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="department" class="form-label">Department</label>
+            <InputText id="department" class="form-control" @bind-Value="NewAsset.Department" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="location" class="form-label">Location</label>
+            <InputText id="location" class="form-control" @bind-Value="NewAsset.Location" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="purchaseDate" class="form-label">Purchase Date *</label>
+            <InputDate id="purchaseDate" class="form-control" @bind-Value="NewAsset.PurchaseDate" TValue="DateTime" />
+            <ValidationMessage For="@(() => NewAsset.PurchaseDate)" Class="text-danger small" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="purchasePrice" class="form-label">Purchase Price</label>
+            <InputNumber id="purchasePrice" class="form-control" @bind-Value="NewAsset.PurchasePrice" />
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="warrantyYears" class="form-label">Warranty (Years)</label>
+                <InputNumber id="warrantyYears"
+                             class="form-control"
+                             @bind-Value="NewAsset.WarrantyYears"
+                             TValue="int" />
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="notes" class="form-label">Notes</label>
+        <InputTextArea id="notes" class="form-control" @bind-Value="NewAsset.Notes" rows="3" />
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Save Asset</button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>
+
+@code {
+    private Asset NewAsset = new();
+
+    private async Task HandleValidSubmit()
+    {
+        await AssetService.AddAsync(NewAsset);
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}
