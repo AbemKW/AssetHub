@@ -78,7 +78,7 @@
     flex-direction: row;
     gap: 1.2rem;
     margin-bottom: 2.2rem;
-    justify-content: flex-start; /* Align summary cards to the left */
+    justify-content: flex-start;
     align-items: stretch; /* Make all cards equal height */
     margin-left: 10px; /* Add left margin of 10px */
 }
@@ -95,7 +95,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    height: 100%; /* Ensure equal height */
+    height: 100%;
 }
 .summary-card:hover {
     background: #222;
@@ -294,6 +294,41 @@
     color: #fff;
 }
 
+/* --- Date Range Chart Filters --- */
+.chart-date-range-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+.chart-range-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+.chart-range-selects {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+.chart-range-divider {
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0.5rem;
+}
+@media (max-width: 900px) {
+    .chart-date-range-row {
+        flex-direction: column;
+        gap: 0.7rem;
+        align-items: stretch;
+    }
+    .chart-range-selects {
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+}
+
 /* --- Responsive --- */
 @media (max-width: 900px) {
     .card-row.summary-cards {
@@ -335,4 +370,19 @@
     background: #333;
     color: var(--accent, #4f8cff);
     box-shadow: 0 4px 16px #4f8cff44;
+}
+.dashboard-chart-section {
+    background: #181818;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px #4f8cff44;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    color: #fff;
+    font-family: var(--font-main);
+    border: 1px solid #222;
+}
+.dashboard-chart-section canvas {
+    background: transparent;
+    border-radius: 8px;
+    box-shadow: none;
 }

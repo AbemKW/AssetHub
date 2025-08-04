@@ -3,6 +3,7 @@
 @using AssetHubBlazor.Models
 @using AssetHubBlazor.Services
 @using ChartJs.Blazor.BarChart
+@using ChartJs.Blazor.PieChart
 @using ChartJs.Blazor.Common
 @using ChartJs.Blazor.Common.Handlers
 @using ChartJs.Blazor.Common.Enums
@@ -14,36 +15,81 @@
     <h1 class="dashboard-title">GLOBAL ASSET OVERVIEW</h1>
     <p class="dashboard-subtitle">Monitor and manage assets efficiently. View real-time data and trends.</p>
 </div>
-
-<div class="dashboard-chart-section mb-4">
-    <Chart Config="barConfig" />
-</div>
-
 <div class="card-row summary-cards">
     <div class="summary-card">
         <div class="card-icon"><span class="bi bi-boxes"></span></div>
         <div class="card-value">@TotalAssets</div>
         <div class="card-label">Total Assets</div>
-        <div class="card-change positive">+5.16% from 30d ago</div>
+        <div class="card-change positive">@ChangeInTotalAssets.ToString("F2")% from 30d ago</div>
     </div>
     <div class="summary-card">
         <div class="card-icon"><span class="bi bi-tools"></span></div>
         <div class="card-value">@InUseCount</div>
         <div class="card-label">In Use</div>
-        <div class="card-change positive">+4.73% from 30d ago</div>
+        <div class="card-change positive">@ChangeInUsedAssets.ToString("F2")% from 30d ago</div>
     </div>
     <div class="summary-card">
         <div class="card-icon"><span class="bi bi-check-circle"></span></div>
         <div class="card-value">@AvailableCount</div>
         <div class="card-label">Available</div>
-        <div class="card-change negative">-2.50% from 30d ago</div>
+        <div class="card-change negative">@ChangeInAvailableAssets.ToString("F2")% from 30d ago</div>
     </div>
     <div class="summary-card">
         <div class="card-icon"><span class="bi bi-currency-dollar"></span></div>
-        <div class="card-value">$15.75K</div>
+        <div class="card-value">@AverageValue</div>
         <div class="card-label">Avg. Value</div>
-        <div class="card-change positive">+5.16% from 30d ago</div>
+        <div class="card-change positive">@ChangeInTotalValue.ToString("F2")% from 30d ago</div>
     </div>
+</div>
+<div class="dashboard-chart-controls themed-chart-controls mb-2 chart-date-range-row" style="justify-content: flex-end; text-align: right; display: flex;">
+    <div class="chart-range-group" style="align-items: center; text-align: center; display: flex; flex-direction: column;">
+        <label class="form-label" style="color: #fff; font-weight: 500; margin-bottom: 2px;">Start</label>
+        <div class="chart-range-selects">
+            <InputSelect @bind-Value="SelectedStartYear" TValue="int" class="form-select dashboard-select" style="width: 100px; background: #222; color: #fff; border: 1.5px solid var(--accent, #4f8cff); border-radius: 6px; font-weight: 600;">
+                @foreach (var year in AvailableYears)
+                {
+                    <option value="@year">@year</option>
+                }
+            </InputSelect>
+            <InputSelect @bind-Value="SelectedStartMonth" TValue="int" class="form-select dashboard-select" style="width: 120px; background: #222; color: #fff; border: 1.5px solid var(--accent, #4f8cff); border-radius: 6px; font-weight: 600;">
+                @foreach (var month in Enumerable.Range(1, 12))
+                {
+                    <option value="@month">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(month)</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+    <span class="chart-range-divider" style="align-self: flex-start;">to</span>
+    <div class="chart-range-group" style="align-items: center; text-align: center; display: flex; flex-direction: column;">
+        <label class="form-label" style="color: #fff; font-weight: 500; margin-bottom: 2px;">End</label>
+        <div class="chart-range-selects">
+            <InputSelect @bind-Value="SelectedEndYear" TValue="int" class="form-select dashboard-select" style="width: 100px; background: #222; color: #fff; border: 1.5px solid var(--accent, #4f8cff); border-radius: 6px; font-weight: 600;">
+                @foreach (var year in AvailableYears)
+                {
+                    <option value="@year">@year</option>
+                }
+            </InputSelect>
+            <InputSelect @bind-Value="SelectedEndMonth" TValue="int" class="form-select dashboard-select" style="width: 120px; background: #222; color: #fff; border: 1.5px solid var(--accent, #4f8cff); border-radius: 6px; font-weight: 600;">
+                @foreach (var month in Enumerable.Range(1, 12))
+                {
+                    <option value="@month">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(month)</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+    <button class="btn themed-update-btn" @onclick="OnBarChartRangeChanged" style="align-self: center;">Update Chart</button>
+</div>
+<div class="dashboard-chart-section mb-4">
+    @if (barConfig != null)
+    {
+        <Chart Config="barConfig" @key="barChartKey" />
+    }
+</div>
+<div class="dashboard-chart-section mb-4">
+    @if (pieConfig != null)
+    {
+        <Chart Config="pieConfig" @key="pieChartKey" />
+    }
 </div>
 
 <div class="dashboard-bottom-row">
@@ -135,7 +181,7 @@
 @code {
     private List<Asset> AllAssets = new();
     private string ActiveBottomTab = "all";
-    private int RecentAssetsCount { get; set; } = 20;
+    private int RecentAssetsCount { get; set; } = 10;
     private List<Asset> RecentAssets => AllAssets
         .OrderByDescending(a => a.PurchaseDate)
         .Take(RecentAssetsCount)
@@ -152,59 +198,196 @@
     }
 
     private BarConfig barConfig;
+    private List<int> AvailableYears => AllAssets.Select(a => a.PurchaseDate.Year).Distinct().OrderBy(y => y).ToList();
+    private int SelectedStartYear { get; set; }
+    private int SelectedStartMonth { get; set; } = 1;
+    private int SelectedEndYear { get; set; }
+    private int SelectedEndMonth { get; set; } = 12;
+
+    private PieConfig pieConfig;
+    private List<string> AvailableDepts => AllAssets.Select(a => a.Department).Distinct().ToList();
+
+    private int barChartKey = 0;
+    private int pieChartKey = 0;
 
     protected override async Task OnInitializedAsync()
     {
         AllAssets = await AssetService.GetAllAsync();
+        if (AllAssets.Any())
+        {
+            SelectedStartYear = AllAssets.Min(a => a.PurchaseDate.Year);
+            SelectedEndYear = AllAssets.Max(a => a.PurchaseDate.Year);
+        }
         SetupBarChart();
+        SetupPieChart();
+        Compare();
+    }
+
+    private void OnBarChartRangeChanged()
+    {
+        SetupBarChart();
+        barChartKey++;
+        StateHasChanged();
+    }
+    private void OnPieChartRangeChanged()
+    {
+        SetupPieChart();
+        pieChartKey++;
+        StateHasChanged();
     }
 
     private void SetupBarChart()
     {
-        // Group assets by month and sum their values
+        var startDate = new DateTime(SelectedStartYear, SelectedStartMonth, 1);
+        var endDate = new DateTime(SelectedEndYear, SelectedEndMonth, DateTime.DaysInMonth(SelectedEndYear, SelectedEndMonth));
         var grouped = AllAssets
+            .Where(a => a.PurchaseDate >= startDate && a.PurchaseDate <= endDate)
             .GroupBy(a => new { a.PurchaseDate.Year, a.PurchaseDate.Month })
             .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
             .Select(g => new
             {
-                Label = $"{g.Key.Year}-{g.Key.Month:00}",
-                TotalValue = g.Sum(a => a.PurchasePrice)
+                YearsToShowChart = $"{g.Key.Year}-{g.Key.Month:00}",
+                TotalValueChart = g.Sum(a => a.PurchasePrice)
             }).ToList();
 
-        var labels = grouped.Select(g => g.Label).ToList();
-        var data = grouped.Select(g => (double)g.TotalValue).ToList();
+        var labels = grouped.Select(g => g.YearsToShowChart).ToList();
+        var data = grouped.Select(g => (double)g.TotalValueChart).ToList();
 
         barConfig = new BarConfig
         {
             Options = new BarOptions
             {
                 Responsive = true,
-                Title = new OptionsTitle { Display = true, Text = "Total Asset Value Over Time" },
-                Legend = new Legend { Display = false },
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = "Total Asset Value Over Time",
+                    FontColor = "#fff",
+                    FontSize = 22
+                },
+                Legend = new Legend
+                {
+                    Display = false
+                },
                 Scales = new BarScales
                 {
-                    XAxes = new List<CartesianAxis> { new CategoryAxis { ScaleLabel = new ScaleLabel { Display = true, LabelString = "Month" } } },
-                    YAxes = new List<CartesianAxis> { new LinearCartesianAxis { ScaleLabel = new ScaleLabel { Display = true, LabelString = "Total Value ($)" } } }
+                    XAxes = new List<CartesianAxis> {
+                        new CategoryAxis {
+                            ScaleLabel = new ScaleLabel {
+                                Display = true,
+                                LabelString = "Month",
+                                FontColor = "#fff",
+                                FontSize = 16
+                            },
+                            Ticks = new CategoryTicks {
+                                FontColor = "#fff",
+                                FontSize = 14
+                            },
+                            GridLines = new GridLines {
+                                Color = "#222"
+                            }
+                        }
+                    },
+                    YAxes = new List<CartesianAxis> {
+                        new LinearCartesianAxis {
+                            ScaleLabel = new ScaleLabel {
+                                Display = true,
+                                LabelString = "Total Value ($)",
+                                FontColor = "#fff",
+                                FontSize = 16
+                            },
+                            Ticks = new LinearCartesianTicks {
+                                FontColor = "#fff",
+                                FontSize = 14
+                            },
+                            GridLines = new GridLines {
+                                Color = "#222"
+                            }
+                        }
+                    }
                 }
             }
         };
+        barConfig.Data.Labels.Clear();
         foreach (var label in labels)
         {
             barConfig.Data.Labels.Add(label);
         }
+        barConfig.Data.Datasets.Clear();
         var dataset = new BarDataset<double>(data)
         {
             Label = "Asset Value",
-            BackgroundColor = ColorUtil.ColorHexString(75, 192, 192),
-            BorderColor = ColorUtil.ColorHexString(75, 192, 192),
-            BorderWidth = 1
+            BackgroundColor = ColorUtil.ColorHexString(79, 140, 255), // Accent color
+            BorderColor = ColorUtil.ColorHexString(79, 140, 255),
+            BorderWidth = 2,
+            HoverBackgroundColor = ColorUtil.ColorHexString(75, 192, 192),
+            HoverBorderColor = ColorUtil.ColorHexString(75, 192, 192)
         };
         barConfig.Data.Datasets.Add(dataset);
     }
 
+    private void SetupPieChart()
+    {
+        var data = AllAssets
+        .GroupBy(a => a.Department)
+        .Select(g =>  g.Count()).ToList();
+        pieConfig = new PieConfig()
+        {
+            Options = new PieOptions()
+            {
+                Responsive = true,
+                Title = new OptionsTitle()
+                {
+                    Display = true,
+                    Text = "Assets Across Departments"
+                }
+            }
+        };
+        pieConfig.Data.Labels.Clear();
+        foreach (var dpt in AvailableDepts)
+        {
+            pieConfig.Data.Labels.Add(dpt);
+        }
+        pieConfig.Data.Datasets.Clear();
+        // Assign a different color for each department
+        var colors = new List<string> {
+            "#4f8cff", "#ff6384", "#36a2eb", "#ffce56", "#2ecc40", "#e67e22", "#9b59b6", "#34495e", "#f1c40f", "#1abc9c"
+        };
+        while (colors.Count < data.Count)
+        {
+            colors.AddRange(colors);
+        }
+        var dataset = new PieDataset<int>(data);
+        dataset.BackgroundColor = new ChartJs.Blazor.Common.IndexableOption<string>(colors.Take(data.Count).ToArray());
+        pieConfig.Data.Datasets.Add(dataset);
+    }
     private int TotalAssets => AllAssets.Count;
     private int InUseCount => AllAssets.Count(a => a.Status == Status.InUse);
     private int AvailableCount => AllAssets.Count(a => a.Status == Status.Available);
+
+    private double ChangeInTotalAssets { get; set; }
+    private double ChangeInUsedAssets { get; set; }
+    private double ChangeInAvailableAssets { get; set; }
+    private double ChangeInTotalValue { get; set; }
+
+    private void Compare()
+    {
+        var totalAssetsLastMonth = AllAssets.
+        Where(a => a.PurchaseDate < DateTime.Now.AddDays(-30)).
+        ToList();
+        var totalAssetsLastMonthCount = totalAssetsLastMonth.Count();
+        ChangeInTotalAssets = totalAssetsLastMonthCount == 0 ? 0 :
+        ((TotalAssets - totalAssetsLastMonthCount) / (double)totalAssetsLastMonthCount) * 100;
+
+        var InUseAssetsLastMonth = totalAssetsLastMonth.Count(a => a.Status == Status.InUse);
+        ChangeInUsedAssets = InUseAssetsLastMonth == 0 ? 0 :
+        ((InUseCount - InUseAssetsLastMonth) / (double)InUseAssetsLastMonth) * 100;
+        var AvailableAssetsLastMonth = totalAssetsLastMonth.Count(a => a.Status == Status.Available);
+        ChangeInAvailableAssets = AvailableAssetsLastMonth == 0 ? 0 :
+        ((AvailableCount - AvailableAssetsLastMonth) / (double)AvailableAssetsLastMonth) * 100;
+
+        ChangeInTotalValue = ((TotalAssets - totalAssetsLastMonthCount) / (double)totalAssetsLastMonthCount) * 100;
+    }
 
     private int LaptopCount => AllAssets.Count(a => a.Type == AssetType.Laptop);
     private int PhoneCount => AllAssets.Count(a => a.Type == AssetType.Phone);
