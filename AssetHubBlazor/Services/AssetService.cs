@@ -78,11 +78,7 @@ public class AssetService
 
     public Task RemoveAsync(Asset asset)
     {
-        bool found = AssetList.Any(a => a.Id == asset.Id);
-        if (found)
-        {
-            AssetList.Remove(asset);
-        }
+        AssetList.RemoveAll(a => a.Id == asset.Id);
         return Task.CompletedTask;
     }
 }
