@@ -20,8 +20,7 @@ public enum AssetType
 public enum Status
 {
     Available,
-    InUse,
-    InRepair
+    InUse
 }
 public class Asset
 {

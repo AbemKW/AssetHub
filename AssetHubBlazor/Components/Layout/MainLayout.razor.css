@@ -1,86 +1,126 @@
 .page {
-    position: relative;
-    display: flex;
-    flex-direction: column;
+    /* Remove position, flex, and direction to avoid extra space */
+    /* position: relative; */
+    /* display: flex; */
+    /* flex-direction: column; */
 }
 
 main {
-    flex: 1;
+    /* Remove flex: 1 to avoid extra space */
+    /* flex: 1; */
+    /* Remove any margin or padding */
+    margin: 0;
+    padding: 0;
 }
 
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-}
-
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
+/* --- Top Navigation Bar --- */
+.top-navbar {
+    width: 100%;
+    height: 64px;
+    background: #111;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    box-shadow: none;
+    z-index: 10;
+}
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    color: #fff;
+    font-family: var(--font-main);
+}
+.breadcrumb .crumb {
+    color: #bbb;
+    font-weight: 500;
+}
+.breadcrumb .active {
+    color: #fff;
+    font-weight: 700;
+}
+.top-navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+.contact-btn {
+    background: #fff;
+    color: #111;
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: none;
+    border: 1px solid #222;
+    font-size: 1.3rem;
+    transition: background 0.2s, color 0.2s;
+}
+.contact-btn:hover {
+    background: #222;
+    color: #fff;
+}
+.bell-icon {
+    position: relative;
+    font-size: 1.3rem;
+    color: #fff;
+}
+.bell-dot {
+    position: absolute;
+    top: 2px; right: 2px;
+    width: 10px; height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    border: 2px solid #111;
+}
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    background: #222;
+    border-radius: 24px;
+    padding: 0.3rem 1rem;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.profile .bi-person-circle {
+    font-size: 1.5rem;
+    color: #fff;
+}
+.profile .bi-caret-down-fill {
+    font-size: 1rem;
+    color: #bbb;
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
-        text-decoration: none;
-    }
+/* --- Main Content Area --- */
+.main-content {
+    margin-left: 15vw;
+    padding: 2.5rem 2.5rem 2.5rem 2.5rem;
+    background: none;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+    color: #fff;
+}
 
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
-    }
-
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-@media (max-width: 640.98px) {
-    .top-row {
-        justify-content: space-between;
-    }
-
-    .top-row ::deep a, .top-row ::deep .btn-link {
+@media (max-width: 900px) {
+    .main-content {
         margin-left: 0;
+        padding: 1rem;
     }
-}
-
-@media (min-width: 641px) {
-    .page {
-        flex-direction: row;
-    }
-
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-    }
-
-    .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
-
-    .top-row, article {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
+    .top-navbar {
+        padding: 0 1rem;
     }
 }
 
 #blazor-error-ui {
     color-scheme: light only;
-    background: lightyellow;
+    background: #222;
     bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
     box-sizing: border-box;
     display: none;
     left: 0;
@@ -95,4 +135,5 @@ main {
         position: absolute;
         right: 0.75rem;
         top: 0.5rem;
+        color: #fff;
     }

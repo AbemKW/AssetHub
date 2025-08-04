@@ -6,97 +6,66 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
-<h3>Asset Details</h3>
-
-@if (Asset == null)
-{
-    <div class="alert alert-info">Loading asset details...</div>
-}
-else
-{
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4>@Asset.Name</h4>
-            <span class="badge
-                    @(Asset.Status == Status.InUse ? "bg-success" :
-                                    Asset.Status == Status.Available ? "bg-secondary" :
-                                    "bg-warning")">
-                                               @Asset.Status
-                                           </span>
-                                       </div>
-
-        <div class="card-body">
-            <dl class="row">
-                <!-- Name -->
-                <dt class="col-sm-3">Name</dt>
-                <dd class="col-sm-9">@Asset.Name</dd>
-
-                <!-- Type -->
-                <dt class="col-sm-3">Type</dt>
-                <dd class="col-sm-9">@Asset.Type.ToString()</dd>
-
-                <!-- Brand -->
-                <dt class="col-sm-3">Brand</dt>
-                <dd class="col-sm-9">@Asset.Brand</dd>
-
-                <!-- Model Number -->
-                <dt class="col-sm-3">Model Number</dt>
-                <dd class="col-sm-9">@Asset.ModelNumber</dd>
-
-                <!-- Serial Number -->
-                <dt class="col-sm-3">Serial Number</dt>
-                <dd class="col-sm-9"><code>@Asset.SerialNumber</code></dd>
-
-                <!-- Status -->
-                <dt class="col-sm-3">Status</dt>
-                <dd class="col-sm-9">
-                    <span class="badge
-                            @(Asset.Status == Status.InUse ? "bg-success" :
-                                                    Asset.Status == Status.Available ? "bg-secondary" : "bg-warning")">
+<div class="view-details-page-container">
+    <div class="view-details-header mb-4">
+        <h2 class="page-title">Asset Details</h2>
+        <p class="page-desc">View all information about this asset below.</p>
+    </div>
+    @if (Asset == null)
+    {
+        <div class="card p-4 mb-4">Loading asset details...</div>
+    }
+    else
+    {
+        <div class="card p-4">
+            <div class="card-header d-flex align-items-center justify-content-between mb-3">
+                <h4 class="mb-0">@Asset.Name</h4>
+                <span class="badge @(Asset.Status == Status.InUse ? "bg-success" : "bg-secondary")">
                     @Asset.Status
                 </span>
-            </dd>
-
-                <!-- Assigned To -->
-                <dt class="col-sm-3">Assigned To</dt>
-                <dd class="col-sm-9">@Asset.AssignedTo</dd>
-
-                <!-- Department -->
-                <dt class="col-sm-3">Department</dt>
-                <dd class="col-sm-9">@Asset.Department</dd>
-
-                <!-- Location -->
-                <dt class="col-sm-3">Location</dt>
-                <dd class="col-sm-9">@Asset.Location</dd>
-
-                <!-- Purchase Date -->
-                <dt class="col-sm-3">Purchase Date</dt>
-                <dd class="col-sm-9">@Asset.PurchaseDate.ToString("MMM dd, yyyy")
-                </dd>
-
-                <!-- Purchase Price -->
-                <dt class="col-sm-3">Purchase Price</dt>
-                <dd class="col-sm-9">@Asset.PurchasePrice.ToString("C")</dd>
-
-                <!-- Warranty -->
-                <dt class="col-sm-3">Warranty</dt>
-                <dd class="col-sm-9">@Asset.WarrantyYears years</dd>
-
-                <!-- Notes -->
-                <dt class="col-sm-3">Notes</dt>
-                <dd class="col-sm-9">@(string.IsNullOrEmpty(Asset.Notes) ? "No notes" : Asset.Notes)</dd>
-            </dl>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Name</dt>
+                    <dd class="col-sm-9">@Asset.Name</dd>
+                    <dt class="col-sm-3">Type</dt>
+                    <dd class="col-sm-9">@Asset.Type.ToString()</dd>
+                    <dt class="col-sm-3">Brand</dt>
+                    <dd class="col-sm-9">@Asset.Brand</dd>
+                    <dt class="col-sm-3">Model Number</dt>
+                    <dd class="col-sm-9">@Asset.ModelNumber</dd>
+                    <dt class="col-sm-3">Serial Number</dt>
+                    <dd class="col-sm-9"><code>@Asset.SerialNumber</code></dd>
+                    <dt class="col-sm-3">Status</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge @(Asset.Status == Status.InUse ? "bg-success" : "bg-secondary")">
+                            @Asset.Status
+                        </span>
+                    </dd>
+                    <dt class="col-sm-3">Assigned To</dt>
+                    <dd class="col-sm-9">@Asset.AssignedTo</dd>
+                    <dt class="col-sm-3">Department</dt>
+                    <dd class="col-sm-9">@Asset.Department</dd>
+                    <dt class="col-sm-3">Location</dt>
+                    <dd class="col-sm-9">@Asset.Location</dd>
+                    <dt class="col-sm-3">Purchase Date</dt>
+                    <dd class="col-sm-9">@Asset.PurchaseDate.ToString("MMM dd, yyyy")</dd>
+                    <dt class="col-sm-3">Purchase Price</dt>
+                    <dd class="col-sm-9">@Asset.PurchasePrice.ToString("C")</dd>
+                    <dt class="col-sm-3">Warranty</dt>
+                    <dd class="col-sm-9">@Asset.WarrantyYears years</dd>
+                    <dt class="col-sm-3">Notes</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrEmpty(Asset.Notes) ? "No notes" : Asset.Notes)</dd>
+                </dl>
+            </div>
+            <div class="card-footer d-flex justify-content-end gap-2">
+                <button class="btn btn-secondary" @onclick="GoBack">Back</button>
+                <a href="/edit/@Asset.Id" class="btn btn-primary">Edit Asset</a>
+                <button class="btn btn-danger" @onclick="ConfirmDelete">Delete Asset</button>
+            </div>
         </div>
-
-        <div class="card-footer text-end">
-            <button class="btn btn-secondary me-2" @onclick="GoBack">Back</button>
-            <a href="/edit/@Asset.Id" class="btn btn-primary">Edit Asset</a>
-            <button class="btn btn-danger" @onclick="ConfirmDelete">
-                Delete Asset
-            </button>
-        </div>
-    </div>
-}
+    }
+</div>
 
 @code {
     [Parameter]
