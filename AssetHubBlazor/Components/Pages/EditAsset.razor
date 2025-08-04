@@ -5,51 +5,110 @@
 @inject AssetService AssetService
 @inject NavigationManager NavigationManager
 
-<div class="edit-asset-page-container">
-    <div class="edit-asset-header mb-4">
-        <h2 class="page-title">Edit Asset</h2>
-        <p class="page-desc">Update the details of the selected asset below.</p>
+<div class="dashboard-title-section">
+    <h1 class="dashboard-title">EDIT ASSET</h1>
+    <p class="dashboard-subtitle">Update the details of the selected asset below.</p>
+</div>
+<div class="dashboard-bottom-row">
+    <div class="dashboard-table-section" style="max-width:700px;margin:auto;">
+        @if (Asset == null)
+        {
+            <div class="card p-4 mb-4">Loading...</div>
+        }
+        else
+        {
+            <div class="card p-4">
+                <EditForm Model="@EditedAsset" OnValidSubmit="@HandleValidSubmit" FormName="EditAssetForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary Class="text-danger mb-3" />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="assetName" class="form-label">Name *</label>
+                            <InputText id="assetName" class="form-control" @bind-Value="EditedAsset.Name" />
+                            <ValidationMessage For="@(() => EditedAsset.Name)" Class="text-danger small" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="assetType" class="form-label">Type *</label>
+                            <InputSelect id="assetType" class="form-control" @bind-Value="EditedAsset.Type">
+                                <option value="">-- Select Type --</option>
+                                @foreach (var type in Enum.GetValues<AssetType>())
+                                {
+                                    <option value="@((int)type)">@type</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => EditedAsset.Type)" Class="text-danger small" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="brand" class="form-label">Brand</label>
+                            <InputText id="brand" class="form-control" @bind-Value="EditedAsset.Brand" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="modelNumber" class="form-label">Model Number</label>
+                            <InputText id="modelNumber" class="form-control" @bind-Value="EditedAsset.ModelNumber" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="serialNumber" class="form-label">Serial Number</label>
+                            <InputText id="serialNumber" class="form-control" @bind-Value="EditedAsset.SerialNumber" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status *</label>
+                            <InputSelect id="status" class="form-control" @bind-Value="EditedAsset.Status">
+                                <option value="">-- Select Status --</option>
+                                @foreach (var status in Enum.GetValues<Status>())
+                                {
+                                    <option value="@((int)status)">@status</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => EditedAsset.Status)" Class="text-danger small" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="assignedTo" class="form-label">Assigned To</label>
+                            <InputText id="assignedTo" class="form-control" @bind-Value="EditedAsset.AssignedTo" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            <InputText id="department" class="form-control" @bind-Value="EditedAsset.Department" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <InputText id="location" class="form-control" @bind-Value="EditedAsset.Location" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="purchaseDate" class="form-label">Purchase Date *</label>
+                            <InputDate id="purchaseDate" class="form-control" @bind-Value="EditedAsset.PurchaseDate" TValue="DateTime" />
+                            <ValidationMessage For="@(() => EditedAsset.PurchaseDate)" Class="text-danger small" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="purchasePrice" class="form-label">Purchase Price</label>
+                            <InputNumber id="purchasePrice" class="form-control" @bind-Value="EditedAsset.PurchasePrice" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="warrantyYears" class="form-label">Warranty (Years)</label>
+                            <InputNumber id="warrantyYears" class="form-control" @bind-Value="EditedAsset.WarrantyYears" TValue="int" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <InputTextArea id="notes" class="form-control" @bind-Value="EditedAsset.Notes" rows="3" />
+                    </div>
+                    <div class="mt-4 d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn btn-gradient">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                    </div>
+                </EditForm>
+            </div>
+        }
     </div>
-    @if (Asset == null)
-    {
-        <div class="card p-4 mb-4">Loading...</div>
-    }
-    else
-    {
-        <div class="card p-4">
-            <EditForm Model="@EditedAsset" OnValidSubmit="@HandleValidSubmit" FormName="EditAssetForm">
-                <DataAnnotationsValidator />
-                <ValidationSummary Class="text-danger mb-3" />
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="assetName" class="form-label">Name *</label>
-                        <InputText id="assetName" class="form-control" @bind-Value="EditedAsset.Name" />
-                        <ValidationMessage For="@(() => EditedAsset.Name)" Class="text-danger small" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="assetType" class="form-label">Type *</label>
-                        <InputSelect id="assetType" class="form-control" @bind-Value="EditedAsset.Type">
-                            <option value="">-- Select Type --</option>
-                            @foreach (var type in Enum.GetValues<AssetType>())
-                            {
-                                <option value="@((int)type)">@type</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(() => EditedAsset.Type)" Class="text-danger small" />
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="notes" class="form-label">Notes</label>
-                    <InputTextArea id="notes" class="form-control" @bind-Value="EditedAsset.Notes" rows="3" />
-                </div>
-                <div class="mt-4 d-flex justify-content-end gap-2">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-                </div>
-            </EditForm>
-        </div>
-    }
 </div>
 
 @code {
@@ -63,7 +122,6 @@
     {
         Asset = await AssetService.GetByIdAsync(Id);
         EditedAsset = Asset;
-
     }
 
     private async Task HandleValidSubmit()
